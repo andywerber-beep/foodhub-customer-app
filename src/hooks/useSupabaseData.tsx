@@ -1,52 +1,51 @@
-import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+'use client';
 
-// Initialize the secure client with our verified local Next environment keys
+import { createClient } from '@supabase/supabase-base-js'; // adjust import string to match your exact package if needed
+import { useEffect, useState } from 'react';
+
+// Initialize Supabase configuration client engine layout
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export interface Venue {
   id: number;
   name: string;
-  cuisine_type: string; // Enforcing your exact spelling parameter
+  cuisine_type: string;
   status: string;
   town: string;
   postcode: string;
   address1: string;
-  address2?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export function useSupabaseData() {
   const [venues, setVenues] = useState<Venue[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchActiveVenues() {
+    async function getActivePartners() {
       try {
         setLoading(true);
-        
-        // Querying the venues table explicitly for live partner venues
-        const { data, error: supabaseError } = await supabase
-          .from('venues')
-          .select('id, name, cuisine_type, status, town, postcode, address1, address2')
-          .eq('status', 'active'); // Filtering out onboarding/pending items completely
+        // Point directly to your active 'partners' table instead of 'venues'
+        const { data, error: fetchError } = await supabase
+          .from('partners') 
+          .select('id, name, cuisine_type, status, town, postcode, address1');
 
-        if (supabaseError) throw supabaseError;
+        if (fetchError) throw fetchError;
 
+        // Map data safely into state array frame
         setVenues(data || []);
       } catch (err: any) {
-        setError(err.message || 'Failed to pull partner venue layers.');
+        setError(err.message || 'Failed to populate database metrics');
       } finally {
         setLoading(false);
       }
     }
 
-    if (supabaseUrl && supabaseAnonKey) {
-      fetchActiveVenues();
-    }
+    getActivePartners();
   }, []);
 
   return { venues, loading, error };
