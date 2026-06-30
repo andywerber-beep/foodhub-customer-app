@@ -1,57 +1,46 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { Venue } from '@/hooks/useSupabaseData';
 
 interface FloatingPromptProps {
-  isVisible: boolean;
-  message?: string;
+  venue: Venue;
+  onClose: () => void;
 }
 
-export default function FloatingPrompt({ 
-  isVisible, 
-  message = "✨ Special Venue Deal Nearby!" 
-}: FloatingPromptProps) {
-  const [shouldRender, setShouldRender] = useState(isVisible);
-
-  useEffect(() => {
-    if (isVisible) {
-      setShouldRender(true);
-    } else {
-      // Allow the smooth exit fade animation to finish before unmounting from the DOM
-      const timer = setTimeout(() => setShouldRender(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible]);
-
-  if (!shouldRender) return null;
-
+export default function FloatingPrompt({ venue, onClose }: FloatingPromptProps) {
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: '20px',
-        left: '50%',
-        transform: `translateX(-50%) translateY(${isVisible ? '0' : '-20px'})`,
-        opacity: isVisible ? 1 : 0,
-        transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease',
-        backgroundColor: '#111111',
-        color: '#ffffff',
-        padding: '14px 28px',
-        borderRadius: '40px',
-        fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
-        fontSize: '14px',
-        fontWeight: 600,
-        letterSpacing: '-0.01em',
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.15)',
-        zIndex: 99,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        whiteSpace: 'nowrap',
-        pointerEvents: 'none',
-      }}
-    >
-      {message}
+    <div style={{
+      position: 'absolute',
+      top: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: 'calc(100% - 32px)',
+      maxWidth: '400px',
+      backgroundColor: '#111111',
+      color: '#ffffff',
+      padding: '16px',
+      borderRadius: '16px',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      zIndex: 1000,
+      fontFamily: '-apple-system, sans-serif'
+    }}>
+      <div style={{ flex: 1, marginRight: '12px' }}>
+        <div style={{ fontSize: '12px', fontWeight: 600, color: '#0066FF', textTransform: 'uppercase', marginBottom: '2px', letterSpacing: '0.05em' }}>
+          ⚡ Proximity Ping Active
+        </div>
+        <div style={{ fontSize: '15px', fontWeight: 600 }}>{venue.name} is nearby!</div>
+        <div style={{ fontSize: '13px', color: '#aaaaaa', marginTop: '2px' }}>Tap map marker to unlock exclusive lookbook deals.</div>
+      </div>
+      <button 
+        onClick={onClose} 
+        style={{ background: 'none', border: 'none', color: '#ffffff', fontSize: '18px', cursor: 'pointer', padding: '4px 8px' }}
+      >
+        ✕
+      </button>
     </div>
   );
 }

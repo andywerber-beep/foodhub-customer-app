@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 import { Venue } from '@/hooks/useSupabaseData';
 import SlideUpCard from '../venue/SlideUpCard';
@@ -20,8 +21,8 @@ export default function MapContainer({
   onClearPrompt,
 }: MapContainerProps) {
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
+  const router = useRouter();
 
-  // Center on Brighton by default, but users can now freely zoom out to Worthing
   const defaultCenter = { lat: 50.8225, lng: -0.1372 };
 
   return (
@@ -32,7 +33,6 @@ export default function MapContainer({
           defaultZoom={13}
           defaultCenter={defaultCenter}
           gestureHandling="greedy"
-          // Removed disableDefaultUI to restore full map capabilities seamlessly
           zoomControl={true}
           mapTypeControl={false}
           scaleControl={true}
@@ -40,14 +40,14 @@ export default function MapContainer({
           rotateControl={false}
           fullscreenControl={false}
         >
-          {/* User Geolocation Pulse Ring Marker */}
+          {/* User Geolocation Pulse Ring */}
           {userLocation && (
             <Marker
               position={{ lat: userLocation.latitude, lng: userLocation.longitude }}
               title="Your Location"
               options={{
                 icon: {
-                  path: 0, // Native Circle Anchor
+                  path: 0,
                   scale: 8,
                   fillColor: '#0066FF',
                   fillOpacity: 1,
@@ -58,7 +58,7 @@ export default function MapContainer({
             />
           )}
 
-          {/* Database Partner Venues Coordinate Layer */}
+          {/* Database Partner Venues Layer */}
           {venues.map((venue) => {
             if (!venue.latitude || !venue.longitude) return null;
 
@@ -85,12 +85,19 @@ export default function MapContainer({
 
         {/* Real-time Overhead Proximity Notification Engine */}
         {proximityVenue && (
-          <FloatingPrompt venue={proximityVenue} onClose={onClearPrompt} />
-        )}
+  <FloatingPrompt 
+    venue={proximityVenue} 
+    onClose={onClearPrompt} 
+  />
+)}
 
         {/* Bottom Detailed Lookbook Slider View Sheet */}
         {selectedVenue && (
-          <SlideUpCard venue={selectedVenue} onClose={() => setSelectedVenue(null)} />
+          <SlideUpCard 
+            venue={selectedVenue} 
+            onClose={() => setSelectedVenue(null)} 
+            onViewMenu={(id) => router.push(`/menu?id=${id}`)}
+          />
         )}
 
       </div>

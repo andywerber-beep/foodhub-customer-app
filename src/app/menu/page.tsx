@@ -12,7 +12,6 @@ interface MenuItem {
   image_url?: string;
 }
 
-// 1. Move the original menu lookbook logic into a separate inner component
 function MenuContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -30,7 +29,7 @@ function MenuContent() {
         setLoading(true);
 
         const { data: venueData } = await supabase
-          .from('venues')
+          .from('partners')
           .select('id, name, cuisine_type, status, town, postcode, address1')
           .eq('id', venueId)
           .single();
@@ -55,8 +54,6 @@ function MenuContent() {
 
   const handleNFCTapPurchase = (item: MenuItem) => {
     const commissionAmount = item.price * 0.10; 
-    console.log(`📡 Initializing NFC hardware link loop...`);
-    console.log(`💰 Grand Total: £${item.price.toFixed(2)} | Platform Comm (10%): £${commissionAmount.toFixed(2)}`);
     alert(`NFC Tap Active: Hold your mobile device near the vendor terminal to buy ${item.name} for £${item.price.toFixed(2)}`);
   };
 
@@ -102,39 +99,13 @@ function MenuContent() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {menuItems.map((item) => (
-            <div 
-              key={item.id} 
-              style={{
-                border: '1px solid #eaeaea',
-                borderRadius: '16px',
-                padding: '16px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '12px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-              }}
-            >
+            <div key={item.id} style={{ border: '1px solid #eaeaea', borderRadius: '16px', padding: '16px', display: 'flex', justifyContent: 'space-between',  alignItems: 'center', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
               <div style={{ flex: 1 }}>
                 <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 600, color: '#111111' }}>{item.name}</h4>
                 <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666666', lineHeight: '1.4' }}>{item.description}</p>
                 <span style={{ fontSize: '16px', fontWeight: 700, color: '#111111' }}>£{item.price.toFixed(2)}</span>
               </div>
-              
-              <button
-                onClick={() => handleNFCTapPurchase(item)}
-                style={{
-                  backgroundColor: '#111111',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '10px',
-                  padding: '10px 16px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
+              <button onClick={() => handleNFCTapPurchase(item)} style={{ backgroundColor: '#111111', color: '#ffffff', border: 'none', borderRadius: '10px', padding: '10px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 NFC Tap Pay
               </button>
             </div>
@@ -145,7 +116,6 @@ function MenuContent() {
   );
 }
 
-// 2. Export the main page component wrapped safely inside a Suspense boundary
 export default function MenuLookbookPage() {
   return (
     <Suspense fallback={
