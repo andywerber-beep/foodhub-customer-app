@@ -1,6 +1,6 @@
 'use client';
 
-import { createClient } from '@supabase/supabase-base-js'; // adjust import string to match your exact package if needed
+import { createClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 
 // Initialize Supabase configuration client engine layout
