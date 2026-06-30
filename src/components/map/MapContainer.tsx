@@ -1,60 +1,98 @@
 'use client';
 
-import React from 'react';
-import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
-import { Venue } from '@/hooks/useSupabaseData'; // Importing the official master type
+import React, { useState } from 'react';
+import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
+import { Venue } from '@/hooks/useSupabaseData';
+import SlideUpCard from '../venue/SlideUpCard';
+import FloatingPrompt from './FloatingPrompt';
 
 interface MapContainerProps {
   venues: Venue[];
-  onVenueClick?: (venue: Venue) => void;
+  userLocation: { latitude: number; longitude: number } | null;
+  proximityVenue: Venue | null;
+  onClearPrompt: () => void;
 }
 
-// Center position coordinates set squarely on central Brighton
-const BRIGHTON_CENTER = { lat: 50.8225, lng: -0.1372 };
-const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+export default function MapContainer({
+  venues,
+  userLocation,
+  proximityVenue,
+  onClearPrompt,
+}: MapContainerProps) {
+  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
 
-export default function MapContainer({ venues, onVenueClick }: MapContainerProps) {
-  if (!GOOGLE_MAPS_API_KEY) {
-    return (
-      <div style={{ padding: '20px', color: '#ff4444', textAlign: 'center' }}>
-        <strong>Missing Config:</strong> Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your .env.local file.
-      </div>
-    );
-  }
+  // Center on Brighton by default, but users can now freely zoom out to Worthing
+  const defaultCenter = { lat: 50.8225, lng: -0.1372 };
 
   return (
-    <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-      <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
+      <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+        
         <Map
-          defaultCenter={BRIGHTON_CENTER}
-          defaultZoom={14}
-          gestureHandling="cooperative"
-          disableDefaultUI={true}
-          mapId="foodhub_map_layer"
+          defaultZoom={13}
+          defaultCenter={defaultCenter}
+          gestureHandling="greedy"
+          // Removed disableDefaultUI to restore full map capabilities seamlessly
+          zoomControl={true}
+          mapTypeControl={false}
+          scaleControl={true}
+          streetViewControl={false}
+          rotateControl={false}
+          fullscreenControl={false}
         >
-          {venues.map((venue) => {
-            // Check if coordinates exist on the object before drawing pins
-            // (Cast to any temporarily if latitude/longitude aren't strictly typed in the schema yet)
-            const lat = (venue as any).latitude;
-            const lng = (venue as any).longitude;
+          {/* User Geolocation Pulse Ring Marker */}
+          {userLocation && (
+            <Marker
+              position={{ lat: userLocation.latitude, lng: userLocation.longitude }}
+              title="Your Location"
+              options={{
+                icon: {
+                  path: 0, // Native Circle Anchor
+                  scale: 8,
+                  fillColor: '#0066FF',
+                  fillOpacity: 1,
+                  strokeColor: '#FFFFFF',
+                  strokeWeight: 2,
+                },
+              }}
+            />
+          )}
 
-            if (!lat || !lng) return null;
+          {/* Database Partner Venues Coordinate Layer */}
+          {venues.map((venue) => {
+            if (!venue.latitude || !venue.longitude) return null;
 
             return (
-              <AdvancedMarker
+              <Marker
                 key={venue.id}
-                position={{ lat: Number(lat), lng: Number(lng) }}
-                onClick={() => onVenueClick?.(venue)}
-              >
-                <Pin 
-                  background={'#111111'} 
-                  borderColor={'#ffffff'} 
-                  glyphColor={'#ffffff'}
-                />
-              </AdvancedMarker>
+                position={{ lat: venue.latitude, lng: venue.longitude }}
+                title={venue.name}
+                onClick={() => setSelectedVenue(venue)}
+                options={{
+                  icon: {
+                    path: 0,
+                    scale: 10,
+                    fillColor: '#111111',
+                    fillOpacity: 1,
+                    strokeColor: '#FFFFFF',
+                    strokeWeight: 2,
+                  },
+                }}
+              />
             );
           })}
         </Map>
+
+        {/* Real-time Overhead Proximity Notification Engine */}
+        {proximityVenue && (
+          <FloatingPrompt venue={proximityVenue} onClose={onClearPrompt} />
+        )}
+
+        {/* Bottom Detailed Lookbook Slider View Sheet */}
+        {selectedVenue && (
+          <SlideUpCard venue={selectedVenue} onClose={() => setSelectedVenue(null)} />
+        )}
+
       </div>
     </APIProvider>
   );
