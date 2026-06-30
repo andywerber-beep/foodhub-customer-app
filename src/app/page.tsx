@@ -1,96 +1,48 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSupabaseData, Venue } from '@/hooks/useSupabaseData';
+import React from 'react';
+import { useSupabaseData } from '@/hooks/useSupabaseData';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import MapContainer from '@/components/map/MapContainer';
-import FloatingPrompt from '@/components/map/FloatingPrompt';
-import SlideUpCard from '@/components/venue/SlideUpCard';
 
-export default function MainDashboardPage() {
-  const router = useRouter();
-  
-  // Track which partner venue pin the user has currently opened
-  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
+export default function Home() {
+  // 1. Stream live venue database profiles straight from the partners schema
+  const { venues, loading: dataLoading, error: dataError } = useSupabaseData();
 
-  // 1. Pull active partner venues live out of our Supabase connection stream
-  const { venues, loading, error } = useSupabaseData();
+  // 2. Wake up the mobile device hardware coordinate tracking engine
+  const { userLocation, proximityVenue, clearProximityAlert } = useGeolocation(venues);
 
-  // 2. Feed venues into the high-accuracy tracking hook
-  const { userLocation, geoError, nearbyVenueIds } = useGeolocation(venues);
-
-  // Close the drawer if the user taps somewhere neutral or moves away
-  const handleCloseDrawer = () => {
-    setSelectedVenue(null);
-  };
-
-  // Push user to the corresponding full-screen menu lookbook endpoint
-  const handleViewMenu = (venueId: number) => {
-    router.push(`/menu?id=${venueId}`);
-  };
-
-  const handleVenueMarkerClick = (venue: Venue) => {
-    setSelectedVenue(venue);
-  };
-
-  // Handle data loading state gracefully
-  if (loading) {
+  if (dataLoading) {
     return (
-      <div style={{
-        display: 'flex',
-        height: '100vh',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontFamily: '-apple-system, sans-serif',
-        backgroundColor: '#ffffff'
-      }}>
-        <div style={{ fontSize: '16px', color: '#666666' }}>Initializing FoodHub Maps...</div>
+      <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff', fontFamily: '-apple-system, sans-serif' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          <div style={{ fontSize: '15px', fontWeight: 600, color: '#111111', letterSpacing: '-0.01em' }}>Opening Lookbook Radar...</div>
+          <div style={{ fontSize: '13px', color: '#888888' }}>Syncing secure partner endpoints</div>
+        </div>
       </div>
     );
   }
 
-  // Handle configuration or connection errors cleanly
-  if (error || geoError) {
+  if (dataError) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontFamily: '-apple-system, sans-serif',
-        padding: '20px',
-        textAlign: 'center'
-      }}>
-        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#ff4444', marginBottom: '8px' }}>
-          Connection Offline
+      <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff', padding: '24px', textAlign: 'center', fontFamily: '-apple-system, sans-serif' }}>
+        <div>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 600, color: '#FF3B30' }}>Radar Sync Offline</h3>
+          <p style={{ margin: 0, fontSize: '14px', color: '#666666' }}>{dataError}</p>
         </div>
-        <div style={{ fontSize: '14px', color: '#666666' }}>{error || geoError}</div>
       </div>
     );
   }
 
   return (
-    <main style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
+    <main style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, overflow: 'hidden', backgroundColor: '#f9f9f9' }}>
       
-      {/* 1. Animated Overhead Proximity Banner */}
-      <FloatingPrompt 
-        isVisible={nearbyVenueIds.length > 0} 
-        message="✨ Special Venue Deal Nearby!"
-      />
-
-      {/* 2. Interactive Google Map Layer */}
+      {/* Dynamic Map Canvas Layer (Handles map pins, lookbook drawer, and proximity alerts internally) */}
       <MapContainer 
-        venues={venues} 
-        onVenueClick={handleVenueMarkerClick} 
-      />
-
-      {/* 3. Snappy iOS-style Sliding Drawer Panel */}
-      <SlideUpCard 
-        venue={selectedVenue}
-        onClose={handleCloseDrawer}
-        onViewMenu={handleViewMenu}
+        venues={venues}
+        userLocation={userLocation}
+        proximityVenue={proximityVenue}
+        onClearPrompt={clearProximityAlert}
       />
 
     </main>
