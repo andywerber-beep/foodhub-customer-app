@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase, Venue } from '@/hooks/useSupabaseData';
 
@@ -12,7 +12,8 @@ interface MenuItem {
   image_url?: string;
 }
 
-export default function MenuLookbookPage() {
+// 1. Move the original menu lookbook logic into a separate inner component
+function MenuContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const venueId = searchParams.get('id');
@@ -28,7 +29,6 @@ export default function MenuLookbookPage() {
       try {
         setLoading(true);
 
-        // 1. Grab specific venue details matching the ID parameter
         const { data: venueData } = await supabase
           .from('venues')
           .select('id, name, cuisine_type, status, town, postcode, address1')
@@ -37,7 +37,6 @@ export default function MenuLookbookPage() {
 
         if (venueData) setVenue(venueData);
 
-        // 2. Stream the corresponding signature dishes for this partner venue
         const { data: menuData } = await supabase
           .from('menu_items')
           .select('id, name, description, price, image_url')
@@ -55,12 +54,9 @@ export default function MenuLookbookPage() {
   }, [venueId]);
 
   const handleNFCTapPurchase = (item: MenuItem) => {
-    // 10% operational platform fee structure configuration
     const commissionAmount = item.price * 0.10; 
-    
     console.log(`📡 Initializing NFC hardware link loop...`);
     console.log(`💰 Grand Total: £${item.price.toFixed(2)} | Platform Comm (10%): £${commissionAmount.toFixed(2)}`);
-    
     alert(`NFC Tap Active: Hold your mobile device near the vendor terminal to buy ${item.name} for £${item.price.toFixed(2)}`);
   };
 
@@ -85,8 +81,6 @@ export default function MenuLookbookPage() {
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '24px 16px', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif', backgroundColor: '#ffffff', minHeight: '100vh' }}>
-      
-      {/* Dynamic Navigation Top-Bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
         <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', padding: '4px 8px' }}>
           ←
@@ -127,7 +121,6 @@ export default function MenuLookbookPage() {
                 <span style={{ fontSize: '16px', fontWeight: 700, color: '#111111' }}>£{item.price.toFixed(2)}</span>
               </div>
               
-              {/* NFC Trigger Action Button */}
               <button
                 onClick={() => handleNFCTapPurchase(item)}
                 style={{
@@ -149,5 +142,18 @@ export default function MenuLookbookPage() {
         </div>
       )}
     </div>
+  );
+}
+
+// 2. Export the main page component wrapped safely inside a Suspense boundary
+export default function MenuLookbookPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', fontFamily: '-apple-system, sans-serif' }}>
+        <div style={{ color: '#666666' }}>Loading Lookbook Configuration...</div>
+      </div>
+    }>
+      <MenuContent />
+    </Suspense>
   );
 }
