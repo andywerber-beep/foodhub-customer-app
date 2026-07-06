@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Explicit calculation of your strict 10% platform commission fee
+    // Explicit calculation of the strict 10% platform commission fee
     const platformCommissionFee = calculatePlatformCommission(priceInPence);
 
     // Create a Stripe Checkout Session with Direct Charges & Split Commission
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
           quantity: 1,
         },
       ],
-      // Route the payment directly to the partner ve      // Route the payment directly to the pame      ent_data: {
+      payment_intent_data: {
         application_fee_amount: platformCommissionFee,
         transfer_data: {
           destination: partnerStripeAccountId,
