@@ -6,7 +6,7 @@ import { Venue } from '@/hooks/useSupabaseData';
 interface SlideUpCardProps {
   venue: Venue | null;
   onClose: () => void;
-  onViewMenu: (venueId: number) => void;
+  onViewMenu: (venueId: string) => void;
 }
 
 export default function SlideUpCard({ venue, onClose, onViewMenu }: SlideUpCardProps) {
