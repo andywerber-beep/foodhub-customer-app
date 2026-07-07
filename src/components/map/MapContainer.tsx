@@ -57,12 +57,14 @@ export default function MapContainer({
           }
           .pulse-ring {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 32px;
             height: 32px;
-            background-color: rgba(74, 222, 128, 0.5);
+            background-color: rgba(74, 222, 128, 0.6);
             border-radius: 50%;
             pointer-events: none;
-            z-index: -1;
+            z-index: 1;
             animation: greenPulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
           }
           .venue-map-label {
@@ -76,6 +78,16 @@ export default function MapContainer({
             box-shadow: 0 4px 12px rgba(0,0,0,0.12);
             border: 1px solid #eaeaea;
             letter-spacing: -0.01em;
+            z-index: 3;
+          }
+          .pin-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 32px;
+            height: 32px;
+            z-index: 2;
           }
         `}</style>
 
@@ -98,7 +110,6 @@ export default function MapContainer({
           {venues.map((venue) => {
             if (!venue.latitude || !venue.longitude) return null;
 
-            // Direct mapping connection: check if the offers array exists and has entries
             const hasActiveOffer = Array.isArray(venue.offers) 
               ? venue.offers.length > 0 
               : !!venue.offers;
@@ -121,7 +132,7 @@ export default function MapContainer({
                   onMouseLeave={() => setHoveredVenueId(null)}
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', position: 'relative' }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '32px', height: '32px' }}>
+                  <div className="pin-wrapper">
                     {shouldPulse && <div className="pulse-ring" />}
                     <Pin 
                       background={'#f06262'} 
