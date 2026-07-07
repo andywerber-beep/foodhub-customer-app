@@ -154,18 +154,34 @@ function MenuContent() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {offers.map((item: OfferItem) => (
-              <div key={item.id} style={{ border: '1px solid #eaeaea', borderRadius: '16px', padding: '16px', display: 'flex', gap: '16px', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+              <div 
+                key={item.id} 
+                style={{ 
+                  backgroundColor: '#111111', 
+                  borderRadius: '16px', 
+                  padding: '20px', 
+                  display: 'flex', 
+                  gap: '16px', 
+                  alignItems: 'center', 
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)' 
+                }}
+              >
                 {item.image_url && (
                   <img 
                     src={item.image_url} 
                     alt={item.name} 
-                    style={{ width: '80px', height: '80px', borderRadius: '10px', objectFit: 'cover', border: '1px solid #eee' }} 
+                    style={{ width: '80px', height: '80px', borderRadius: '10px', objectFit: 'cover', border: '1px solid #222' }} 
                   />
                 )}
                 <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 600, color: '#111111' }}>{item.name}</h4>
-                  <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#666666', lineHeight: '1.4' }}>{item.description}</p>
-                  <span style={{ fontSize: '16px', fontWeight: 700, color: '#111111' }}>£{item.price.toFixed(2)}</span>
+                  <div style={{ marginBottom: '8px' }}>
+                    <span style={{ backgroundColor: '#1c3d1c', color: '#4ade80', fontSize: '11px', fontWeight: 700, padding: '4px 8px', borderRadius: '6px', letterSpacing: '0.05em' }}>
+                      ACTIVE FOR 24 HOURS
+                    </span>
+                  </div>
+                  <h4 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 600, color: '#ffffff' }}>{item.name}</h4>
+                  <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#aaaaaa', lineHeight: '1.4' }}>{item.description}</p>
+                  <span style={{ fontSize: '18px', fontWeight: 700, color: '#f06262' }}>£{item.price.toFixed(2)}</span>
                 </div>
               </div>
             ))}
