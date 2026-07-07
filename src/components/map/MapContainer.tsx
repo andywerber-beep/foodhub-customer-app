@@ -98,7 +98,11 @@ export default function MapContainer({
           {venues.map((venue) => {
             if (!venue.latitude || !venue.longitude) return null;
 
-            const hasActiveOffer = venue.status === 'Active' || (venue as any).has_live_offer === true || true; 
+            // Direct mapping connection: check if the offers array exists and has entries
+            const hasActiveOffer = Array.isArray(venue.offers) 
+              ? venue.offers.length > 0 
+              : !!venue.offers;
+              
             const isHovered = hoveredVenueId === venue.id;
             const shouldPulse = hasActiveOffer && !isHovered;
 
