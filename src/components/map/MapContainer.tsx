@@ -23,15 +23,19 @@ export default function MapContainer({
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const router = useRouter();
 
-  const defaultCenter = { lat: 50.8225, lng: -0.1372 };
+  const fallbackCenter = { lat: 50.8136, lng: -0.3704 };
+  
+  const mapCenter = userLocation 
+    ? { lat: userLocation.latitude, lng: userLocation.longitude } 
+    : fallbackCenter;
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
       <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         
         <Map
-          defaultZoom={13}
-          defaultCenter={defaultCenter}
+          center={mapCenter}
+          defaultZoom={14}
           gestureHandling="greedy"
           zoomControl={true}
           mapTypeControl={false}
@@ -40,7 +44,6 @@ export default function MapContainer({
           rotateControl={false}
           fullscreenControl={false}
         >
-          {/* User Geolocation Pulse Ring */}
           {userLocation && (
             <Marker
               position={{ lat: userLocation.latitude, lng: userLocation.longitude }}
@@ -58,7 +61,6 @@ export default function MapContainer({
             />
           )}
 
-          {/* Database Partner Venues Layer */}
           {venues.map((venue) => {
             if (!venue.latitude || !venue.longitude) return null;
 
@@ -83,15 +85,13 @@ export default function MapContainer({
           })}
         </Map>
 
-        {/* Real-time Overhead Proximity Notification Engine */}
         {proximityVenue && (
-  <FloatingPrompt 
-    venue={proximityVenue} 
-    onClose={onClearPrompt} 
-  />
-)}
+          <FloatingPrompt 
+            venue={proximityVenue} 
+            onClose={onClearPrompt} 
+          />
+        )}
 
-        {/* Bottom Detailed Lookbook Slider View Sheet */}
         {selectedVenue && (
           <SlideUpCard 
             venue={selectedVenue} 
