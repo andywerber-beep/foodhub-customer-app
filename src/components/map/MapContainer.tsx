@@ -45,27 +45,22 @@ export default function MapContainer({
       <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         
         <style>{`
-          @keyframes greenPulse {
+          @keyframes glowPulse {
             0% {
-              transform: scale(0.6);
-              opacity: 1;
+              box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.8);
             }
             100% {
-              transform: scale(2.4);
-              opacity: 0;
+              box-shadow: 0 0 0 16px rgba(74, 222, 128, 0);
             }
           }
-          .pulse-ring {
+          .pulse-ring-glow {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 32px;
-            height: 32px;
-            background-color: rgba(74, 222, 128, 0.6);
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             pointer-events: none;
             z-index: 1;
-            animation: greenPulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+            animation: glowPulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
           }
           .venue-map-label {
             background-color: #ffffff;
@@ -133,7 +128,7 @@ export default function MapContainer({
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', position: 'relative' }}
                 >
                   <div className="pin-wrapper">
-                    {shouldPulse && <div className="pulse-ring" />}
+                    {shouldPulse && <div className="pulse-ring-glow" />}
                     <Pin 
                       background={'#f06262'} 
                       borderColor={'#ffffff'} 
