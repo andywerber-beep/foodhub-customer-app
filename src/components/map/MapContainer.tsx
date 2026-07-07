@@ -105,7 +105,6 @@ export default function MapContainer({
           {venues.map((venue) => {
             if (!venue.latitude || !venue.longitude) return null;
 
-            // Strict database matching: trace the offers array and explicitly check for is_active matching TRUE
             let hasActiveOffer = false;
             if (venue.offers) {
               if (Array.isArray(venue.offers)) {
@@ -135,10 +134,11 @@ export default function MapContainer({
                 >
                   <div className="pin-wrapper">
                     {shouldPulse && <div className="pulse-ring-glow" />}
+                    {/* Pins are set to transparent to see if the pulse is hidden behind them */}
                     <Pin 
-                      background={'#f06262'} 
-                      borderColor={'#ffffff'} 
-                      glyphColor={'#ffffff'}
+                      background={'transparent'} 
+                      borderColor={'transparent'} 
+                      glyphColor={'transparent'}
                       scale={1.1}
                     />
                   </div>
