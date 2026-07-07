@@ -55,6 +55,8 @@ export function useSupabaseData() {
             postcode, 
             address1,
             website_url,
+            latitude,
+            longitude,
             offers (
               id,
               title,
