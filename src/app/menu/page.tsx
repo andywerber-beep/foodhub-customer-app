@@ -4,7 +4,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase, Venue } from '@/hooks/useSupabaseData';
 
-interface MenuItem {
+interface OfferItem {
   id: number;
   name: string;
   description: string;
@@ -18,13 +18,13 @@ function MenuContent() {
   const venueId = searchParams.get('id');
 
   const [venue, setVenue] = useState<Venue | null>(null);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [offers, setOffers] = useState<OfferItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!venueId) return;
 
-    async function fetchVenueMenuData() {
+    async function fetchVenueOfferData() {
       try {
         setLoading(true);
 
@@ -36,12 +36,23 @@ function MenuContent() {
 
         if (venueData) setVenue(venueData);
 
-        const { data: menuData } = await supabase
-          .from('menu_items')
-          .select('id, name, description, price, image_url')
+        // Map live promotions from the active offers table instead of redundant food menus
+        const { data: offerData } = await supabase
+          .from('offers')
+          .select('id, title, description, discount_price, image_url')
           .eq('venue_id', venueId);
 
-        if (menuData) setMenuItems(menuData);
+        if (offerData) {
+          // Re-map the schema fields gracefully into the layout display variables
+          const mappedOffers: OfferItem[] = offerData.map((off: any) => ({
+            id: off.id,
+            name: off.title, // Maps title cleanly to standard item display node
+            description: off.description,
+            price: off.discount_price,
+            image_url: off.image_url
+          }));
+          setOffers(mappedOffers);
+        }
       } catch (err) {
         console.error('Error fetching lookbook data details:', err);
       } finally {
@@ -49,11 +60,11 @@ function MenuContent() {
       }
     }
 
-    fetchVenueMenuData();
+    fetchVenueOfferData();
   }, [venueId]);
 
-  const handleNFCTapPurchase = (item: MenuItem) => {
-    const commissionAmount = item.price * 0.10; 
+  const handleNFCTapPurchase = (item: OfferItem) => {
+    const commissionAmount = item.price * 0.10; // Stays permanently locked at your 10% rate
     alert(`NFC Tap Active: Hold your mobile device near the vendor terminal to buy ${item.name} for £${item.price.toFixed(2)}`);
   };
 
@@ -92,13 +103,13 @@ function MenuContent() {
 
       <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111111', marginBottom: '16px' }}>Signature Items & Experience Deals</h3>
 
-      {menuItems.length === 0 ? (
+      {offers.length === 0 ? (
         <div style={{ padding: '40px 0', textAlign: 'center', color: '#888', fontSize: '14px' }}>
           No exclusive items posted for this venue yet. Check back soon!
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {menuItems.map((item) => (
+          {offers.map((item: OfferItem) => (
             <div key={item.id} style={{ border: '1px solid #eaeaea', borderRadius: '16px', padding: '16px', display: 'flex', justifyContent: 'space-between',  alignItems: 'center', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
               <div style={{ flex: 1 }}>
                 <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 600, color: '#111111' }}>{item.name}</h4>
