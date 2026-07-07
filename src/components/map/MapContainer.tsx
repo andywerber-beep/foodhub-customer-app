@@ -105,9 +105,15 @@ export default function MapContainer({
           {venues.map((venue) => {
             if (!venue.latitude || !venue.longitude) return null;
 
-            const hasActiveOffer = Array.isArray(venue.offers) 
-              ? venue.offers.length > 0 
-              : !!venue.offers;
+            // Strict database matching: trace the offers array and explicitly check for is_active matching TRUE
+            let hasActiveOffer = false;
+            if (venue.offers) {
+              if (Array.isArray(venue.offers)) {
+                hasActiveOffer = venue.offers.some(offer => offer && offer.is_active === true);
+              } else if (typeof venue.offers === 'object') {
+                hasActiveOffer = (venue.offers as any).is_active === true;
+              }
+            }
               
             const isHovered = hoveredVenueId === venue.id;
             const shouldPulse = hasActiveOffer && !isHovered;
