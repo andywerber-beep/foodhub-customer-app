@@ -30,7 +30,7 @@ export interface Venue {
   website_url?: string;
   latitude?: number;
   longitude?: number;
-  offers?: Offer | Offer[] | null; // Captures real-time joined campaign data
+  offers?: Offer | Offer[] | null; 
 }
 
 export function useSupabaseData() {
@@ -43,7 +43,7 @@ export function useSupabaseData() {
       try {
         setLoading(true);
 
-        // Fetch active venues and perform a relational join to bring their running flash offers
+        // Fetch active venues with case-insensitive status matching
         const { data, error: fetchError } = await supabase
           .from('partners') 
           .select(`
@@ -68,7 +68,7 @@ export function useSupabaseData() {
               created_at
             )
           `)
-          .eq('status', 'active'); // Only pull partners currently launched live into the ecosystem
+          .in('status', ['active', 'Active']); // Ensure all active partners show regardless of casing
 
         if (fetchError) throw fetchError;
 
