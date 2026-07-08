@@ -45,28 +45,6 @@ export default function MapContainer({
       <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         
         <style>{`
-          @keyframes glowPulse {
-            0% {
-              box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.8);
-              background-color: rgba(74, 222, 128, 0.5);
-            }
-            100% {
-              box-shadow: 0 0 0 20px rgba(74, 222, 128, 0);
-              background-color: rgba(74, 222, 128, 0);
-            }
-          }
-          .pulse-ring-glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1;
-            animation: glowPulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
-          }
           .venue-map-label {
             background-color: #ffffff;
             color: #111111;
@@ -118,9 +96,6 @@ export default function MapContainer({
                 hasActiveOffer = (venue.offers as any).is_active === true;
               }
             }
-              
-            const isHovered = hoveredVenueId === venue.id;
-            const shouldPulse = hasActiveOffer && !isHovered;
 
             return (
               <AdvancedMarker
@@ -138,12 +113,12 @@ export default function MapContainer({
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', position: 'relative' }}
                 >
                   <div className="pin-wrapper">
-                    {shouldPulse && <div className="pulse-ring-glow" />}
+                    {/* Native dynamic color switching based on database state */}
                     <Pin 
-                      background={'#f06262'} 
+                      background={hasActiveOffer ? '#22c55e' : '#f06262'} 
                       borderColor={'#ffffff'} 
                       glyphColor={'#ffffff'}
-                      scale={1.1}
+                      scale={hasActiveOffer ? 1.25 : 1.1}
                     />
                   </div>
 
