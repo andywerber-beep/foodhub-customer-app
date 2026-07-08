@@ -48,13 +48,18 @@ export default function MapContainer({
           @keyframes glowPulse {
             0% {
               box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.8);
+              background-color: rgba(74, 222, 128, 0.5);
             }
             100% {
-              box-shadow: 0 0 0 16px rgba(74, 222, 128, 0);
+              box-shadow: 0 0 0 20px rgba(74, 222, 128, 0);
+              background-color: rgba(74, 222, 128, 0);
             }
           }
           .pulse-ring-glow {
             position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 24px;
             height: 24px;
             border-radius: 50%;
@@ -134,11 +139,10 @@ export default function MapContainer({
                 >
                   <div className="pin-wrapper">
                     {shouldPulse && <div className="pulse-ring-glow" />}
-                    {/* Pins are set to transparent to see if the pulse is hidden behind them */}
                     <Pin 
-                      background={'transparent'} 
-                      borderColor={'transparent'} 
-                      glyphColor={'transparent'}
+                      background={'#f06262'} 
+                      borderColor={'#ffffff'} 
+                      glyphColor={'#ffffff'}
                       scale={1.1}
                     />
                   </div>
