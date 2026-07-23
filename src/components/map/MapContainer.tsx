@@ -6,6 +6,7 @@ import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps
 import { Venue } from '@/hooks/useSupabaseData';
 import SlideUpCard from '../venue/SlideUpCard';
 import FloatingPrompt from './FloatingPrompt';
+import NotificationPrePrompt from './NotificationPrePrompt';
 
 interface MapContainerProps {
   venues: Venue[];
@@ -145,6 +146,9 @@ export default function MapContainer({
             onViewMenu={(id) => router.push(`/menu?id=${id}`)}
           />
         )}
+
+        {/* Notification Pre-Prompt */}
+        <NotificationPrePrompt />
 
       </div>
     </APIProvider>
